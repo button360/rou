@@ -643,3 +643,52 @@ function removeChips(){
 		removeChips();
 	}
 }
+
+async function handleUserLogin() {
+    const username = prompt("Enter your username:");
+
+    if (username) {
+        const fileName = `${username}.txt`;
+        const url = `https://api.github.com/repos/button360/rou/contents/scores/${fileName}`;
+        const headers = {
+            'Authorization': 'token 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',
+            'Accept': 'application/vnd.github.v3.raw'
+        };
+
+        try {
+            const response = await fetch(url, { headers });
+            if (response.ok) {
+                const score = await response.text();
+                alert(`Welcome back! Your score is: ${score}`);
+            } else if (response.status === 404) {
+                const starterScore = 2500;
+                const content = btoa(starterScore.toString());
+                const createResponse = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': 'token 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',
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: `Create ${fileName}`,
+                        content: content
+                    })
+                });
+
+                if (createResponse.ok) {
+                    alert(`User created! Your starting score is: ${starterScore}`);
+                } else {
+                    alert('Error creating user file.');
+                }
+            } else {
+                alert('Error fetching user data.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while processing your request.');
+        }
+    }
+}
+
+window.onload = handleUserLogin;
